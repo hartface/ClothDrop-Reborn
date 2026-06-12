@@ -7,7 +7,7 @@ from . import properties as p
 def CLOTHDROP_bake(context):
     scene = context.scene
     obj = context.object
-    bakeframe = max(1, obj.clothdrop_bakeframe)
+    bakeframe = max(1, obj.clothdrop.bakeframe)
 
     cloth = obj.modifiers.get("CLOTHDROP")
     if cloth is None:
@@ -34,7 +34,7 @@ def CLOTHDROP_bake(context):
     with context.temp_override(object=obj, active_object=obj, point_cache=pc):
         bpy.ops.ptcache.free_bake()
 
-    CLOTHDROP_add_wrinkles(obj, obj.clothdrop_wrinkles)
+    CLOTHDROP_add_wrinkles(obj, obj.clothdrop.wrinkles)
 
     for name in ["CLOTHDROP", "Subsurf", "ClothWrinkles"]:
         mod = obj.modifiers.get(name)
@@ -48,19 +48,19 @@ def CLOTHDROP_bake(context):
 
 def CLOTHDROP_preset_update(self, context):
     obj = context.object
-    settings = p.preset_values[obj.clothdrop_presets]
-    obj.clothdrop_subdivision = settings['subdivision']
-    obj.clothdrop_folds = settings['folds']
-    obj.clothdrop_subsurf = settings['subsurf']
-    obj.clothdrop_wrinkles = settings['wrinkles']
-    obj.clothdrop_weight = settings['weight']
+    settings = p.preset_values[obj.clothdrop.presets]
+    obj.clothdrop.subdivision = settings['subdivision']
+    obj.clothdrop.folds = settings['folds']
+    obj.clothdrop.subsurf = settings['subsurf']
+    obj.clothdrop.wrinkles = settings['wrinkles']
+    obj.clothdrop.weight = settings['weight']
 
 
 
 def CLOTHDROP_remove_collision(context):
     obj = context.object
 
-    if obj.clothdrop_collision_pointer is not None:
+    if obj.clothdrop.collision_pointer is not None:
         mod = obj.clothdrop_collision_pointer.modifiers.get('Collision')
 
         if mod:
@@ -69,26 +69,26 @@ def CLOTHDROP_remove_collision(context):
         
     
 def CLOTHDROP_store_base(obj):
-    if obj.clothdrop_base_mesh is None:
+    if obj.clothdrop.base_mesh is None:
         
-        stored_name = getattr(obj, "clothdrop_base_mesh_name", "")
+        stored_name = getattr(obj, "base_mesh_name", "")
         if stored_name and bpy.data.meshes.get(stored_name):
-            obj.clothdrop_base_mesh = bpy.data.meshes.get(stored_name)
+            obj.clothdrop.base_mesh = bpy.data.meshes.get(stored_name)
             return
 
         copy = obj.data.copy()
         copy.name = f"{obj.name}_clothdrop_base"
         copy.use_fake_user = True
-        obj.clothdrop_base_mesh = copy
-        obj.clothdrop_base_mesh_name = copy.name 
+        obj.clothdrop.base_mesh = copy
+        obj.clothdrop.base_mesh_name = copy.name 
  
 
 
 def CLOTHDROP_restore_base(obj, clear_cache=True):
-    cached = obj.clothdrop_base_mesh
+    cached = obj.clothdrop.base_mesh
   
     if cached is None:
-        stored_name = getattr(obj, "clothdrop_base_mesh_name", "")
+        stored_name = getattr(obj, "base_mesh_name", "")
         if stored_name:
             cached = bpy.data.meshes.get(stored_name)
   
@@ -103,8 +103,8 @@ def CLOTHDROP_restore_base(obj, clear_cache=True):
     obj.data.name = obj.name
   
     if clear_cache:
-        obj.clothdrop_base_mesh = None
-        obj.clothdrop_base_mesh_name = ""
+        obj.clothdrop.base_mesh = None
+        obj.clothdrop.base_mesh_name = ""
       
         cached.use_fake_user = False
         bpy.data.meshes.remove(cached)
@@ -155,7 +155,7 @@ def CLOTHDROP_validate_selected(context):
 
 
 def CLOTHDROP_has_modifier(obj):
-    return obj.clothdrop_active
+    return obj.clothdrop.active
 
 
 
@@ -173,7 +173,7 @@ def CLOTHDROP_subdivision_remove(context):
         
 def CLOTHDROP_update_collision_friction(context):
     obj = context.object
-    collision_obj = getattr(obj, "clothdrop_collision_pointer", None)
+    collision_obj = getattr(obj, "collision_pointer", None)
 
     if not collision_obj:
         return
@@ -181,7 +181,7 @@ def CLOTHDROP_update_collision_friction(context):
     mod = collision_obj.modifiers.get("Collision")
 
     if mod and hasattr(mod, "settings"):
-        f_val = 80.0 if getattr(obj, "clothdrop_high_friction", True) else 1.0
+        f_val = 80.0 if getattr(obj, "high_friction", True) else 1.0
 
         mod.settings.cloth_friction = f_val
         mod.settings.damping = 1.0 if getattr(obj, "clothdrop_high_friction", True) else 0.1
@@ -217,10 +217,10 @@ def CLOTHDROP_auto_collision(obj, context):
     if not col:
         col = hit_obj.modifiers.new(name="Collision", type='COLLISION')
 
-    obj.clothdrop_collision_pointer = hit_obj
-    f_val = 80.0 if getattr(obj, "clothdrop_high_friction", True) else 1.0
+    obj.clothdrop.collision_pointer = hit_obj
+    f_val = 80.0 if getattr(obj, "high_friction", True) else 1.0
     col.settings.cloth_friction = f_val
-    col.settings.damping = 1.0 if getattr(obj, "clothdrop_high_friction", True) else 0.1
+    col.settings.damping = 1.0 if getattr(obj, "high_friction", True) else 0.1
     col.settings.thickness_outer = 0.001
     return True
 
@@ -237,7 +237,7 @@ def CLOTHDROP_subdivision(self, context):
     CLOTHDROP_restore_base(obj, clear_cache=False)
 
     bpy.ops.object.mode_set(mode='EDIT')
-    bpy.ops.mesh.subdivide(number_cuts=obj.clothdrop_subdivision)
+    bpy.ops.mesh.subdivide(number_cuts=obj.clothdrop.subdivision)
     bpy.ops.object.mode_set(mode='OBJECT')
 
     cloth = obj.modifiers.get("CLOTHDROP")
@@ -246,11 +246,11 @@ def CLOTHDROP_subdivision(self, context):
         cloth = obj.modifiers.new(type='CLOTH', name='CLOTHDROP')
 
     cs = cloth.settings
-    collision = cloth.collision_settings
-    is_high_friction = getattr(obj, "clothdrop_high_friction", True)
+    collision = cloth.collision.settings
+    is_high_friction = getattr(obj, "high_friction", True)
     f_val = 80.0 if is_high_friction else 5.0
 
-    fold_pwr = (obj.clothdrop_folds / 10.0) ** 2
+    fold_pwr = (obj.clothdrop.folds / 10.0) ** 2
 
     cs.tension_stiffness = max(0.5, 150.0 / (fold_pwr + 1))
     cs.compression_stiffness = max(0.5, 150.0 / (fold_pwr + 1))
@@ -259,10 +259,10 @@ def CLOTHDROP_subdivision(self, context):
     cs.bending_stiffness = max(0.01, 1.0 / (fold_pwr + 0.1))
     
     cs.bending_model = 'ANGULAR'
-    cs.mass = obj.clothdrop_weight
+    cs.mass = obj.clothdrop.weight
     cs.air_damping = 10.0 if is_high_friction else 1.0
     cs.quality = 12
-    cs.mass = obj.clothdrop_weight
+    cs.mass = obj.clothdrop.weight
 
     collision.use_self_collision = True
     collision.self_distance_min = 0.001

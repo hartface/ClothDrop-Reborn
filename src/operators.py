@@ -52,7 +52,7 @@ class CLOTHDROP_OT_apply(bpy.types.Operator):
 
         utils.CLOTHDROP_store_base(obj)
         utils.CLOTHDROP_subdivision(self, context)
-        obj.clothdrop_active = True
+        obj.clothdrop.active = True
             
         return {'FINISHED'}
 

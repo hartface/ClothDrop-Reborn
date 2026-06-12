@@ -25,19 +25,19 @@ for _class in operators.classes:
     classes.append(_class)
 for _class in panel.classes:
     classes.append(_class)
-
+for _class in properties.classes:
+    classes.append(_class)
 
 
 def register():
-    properties.register_properties()
-
+   
     for _class in classes:
         bpy.utils.register_class(_class)
 
+    bpy.types.Object.clothdrop = bpy.props.PointerProperty(type=properties.CLOTHDROP_Properties)
 
 
 def unregister():
+    del bpy.types.Object.clothdrop
     for _class in reversed(classes):
         bpy.utils.unregister_class(_class)
-
-    properties.unregister_properties()
