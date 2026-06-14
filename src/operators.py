@@ -87,7 +87,7 @@ class CLOTHDROP_OT_remove(bpy.types.Operator):
                 obj.modifiers.remove(mod)
 
             
-        obj.clothdrop_active = False
+        obj.clothdrop.active = False
         return {'FINISHED'}
 
 

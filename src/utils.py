@@ -61,10 +61,10 @@ def CLOTHDROP_remove_collision(context):
     obj = context.object
 
     if obj.clothdrop.collision_pointer is not None:
-        mod = obj.clothdrop_collision_pointer.modifiers.get('Collision')
+        mod = obj.clothdrop.collision_pointer.modifiers.get('Collision')
 
         if mod:
-            obj.clothdrop_collision_pointer.modifiers.remove(mod)
+            obj.clothdrop.collision_pointer.modifiers.remove(mod)
         
         
     
@@ -173,7 +173,7 @@ def CLOTHDROP_subdivision_remove(context):
         
 def CLOTHDROP_update_collision_friction(context):
     obj = context.object
-    collision_obj = getattr(obj, "collision_pointer", None)
+    collision_obj = getattr(obj.clothdrop, "collision_pointer", None)
 
     if not collision_obj:
         return
@@ -181,10 +181,10 @@ def CLOTHDROP_update_collision_friction(context):
     mod = collision_obj.modifiers.get("Collision")
 
     if mod and hasattr(mod, "settings"):
-        f_val = 80.0 if getattr(obj, "high_friction", True) else 1.0
+        f_val = 80.0 if getattr(obj.clothdrop, "high_friction", True) else 1.0
 
         mod.settings.cloth_friction = f_val
-        mod.settings.damping = 1.0 if getattr(obj, "clothdrop_high_friction", True) else 0.1
+        mod.settings.damping = 1.0 if getattr(obj.clothdrop, "high_friction", True) else 0.1
         mod.settings.thickness_outer = 0.001
         mod.settings.thickness_inner = 0.001
 
@@ -246,8 +246,8 @@ def CLOTHDROP_subdivision(self, context):
         cloth = obj.modifiers.new(type='CLOTH', name='CLOTHDROP')
 
     cs = cloth.settings
-    collision = cloth.collision.settings
-    is_high_friction = getattr(obj, "high_friction", True)
+    collision = cloth.collision_settings
+    is_high_friction = getattr(obj.clothdrop, "high_friction", True)
     f_val = 80.0 if is_high_friction else 5.0
 
     fold_pwr = (obj.clothdrop.folds / 10.0) ** 2
@@ -276,7 +276,7 @@ def CLOTHDROP_subdivision(self, context):
     if subd is None:
         subd = obj.modifiers.new(name="Subsurf", type='SUBSURF')
 
-    subd.levels = obj.clothdrop_subsurf
+    subd.levels = obj.clothdrop.subsurf
     bpy.ops.object.shade_smooth()
 
     CLOTHDROP_update_collision_friction(context)

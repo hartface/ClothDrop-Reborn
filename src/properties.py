@@ -61,7 +61,7 @@ class CLOTHDROP_Properties(bpy.types.PropertyGroup):
     bakeframe : bpy.props.IntProperty(name="Bake Frame", description="Adjust the amount of frames to bake", min=0, default=120, max=250)
     high_friction : bpy.props.BoolProperty(name="High Friction", description="Helps prevent sliding off surface", default=True)
     presets : bpy.props.EnumProperty(name="Presets", description="Useful quick presets", items=preset_types, default='Heavy Cotton', update=utils.CLOTHDROP_preset_update)
-    pointer : bpy.props.PointerProperty(name="Collision Pointer", type=bpy.types.Object)
+    collision_pointer : bpy.props.PointerProperty(name="Collision Pointer", type=bpy.types.Object)
     base_mesh : bpy.props.PointerProperty(name="Base Mesh", type=bpy.types.Mesh)
     base_mesh_name : bpy.props.StringProperty(name="Base Mesh Name", description="Fallback name reference for base mesh across sessions", default="")
 
