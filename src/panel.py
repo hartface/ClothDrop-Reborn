@@ -13,6 +13,7 @@ def CLOTHDROP_main_box(layout, scene, context):
 
         layout.prop(obj.clothdrop, "presets")
     else:
+        layout.operator("clothdrop.draw_rectangle", icon='MOD_CLOTH')
         layout.operator("clothdrop.apply", icon='MOD_CLOTH')
         layout.prop(obj.clothdrop, "presets")
         return

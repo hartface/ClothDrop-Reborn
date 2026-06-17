@@ -1,6 +1,58 @@
 import bpy
 from . import utils
+from . import graphics
 
+
+class CLOTHDROP_OT_draw_rectangle(bpy.types.Operator):
+    bl_idname = "clothdrop.draw_rectangle"
+    bl_label = "Draw Cloth"
+
+    action = False
+    _handle = None
+    
+    def finish(self, context):
+        print("Start:", self.start)
+        print("End:", self.end)
+
+
+    def invoke(self, context, event):
+        context.window.cursor_modal_set('EYEDROPPER')
+        context.window_manager.modal_handler_add(self)
+        return {'RUNNING_MODAL'}
+
+
+    def modal(self, context, event):
+
+        if event.type == 'MOUSEMOVE':
+            if self.action == True:
+                self.end = (event.mouse_region_x, event.mouse_region_y)
+                context.area.tag_redraw()
+
+        elif event.type == 'LEFTMOUSE' and event.value == 'PRESS':
+            self.action = True
+            self.start = (event.mouse_region_x, event.mouse_region_y)
+            self._handle = bpy.types.SpaceView3D.draw_handler_add(graphics.draw_rect, (self, context), 'WINDOW', 'POST_PIXEL')
+         
+        elif event.type == 'LEFTMOUSE' and event.value == 'RELEASE':
+            if self.action == True:
+                bpy.types.SpaceView3D.draw_handler_remove(self._handle, 'WINDOW')
+                context.window.cursor_modal_restore()
+                context.area.tag_redraw()
+                return {'FINISHED'}
+
+            context.area.tag_redraw()
+
+            return {'FINISHED'}
+
+        elif event.type in {'ESC', 'RIGHTMOUSE'}:
+        
+            bpy.types.SpaceView3D.draw_handler_remove(self._handle, 'WINDOW')
+
+            context.area.tag_redraw()
+
+            return {'CANCELLED'}
+
+        return {'RUNNING_MODAL'}
 
 
 class CLOTHDROP_OT_update(bpy.types.Operator):
@@ -93,6 +145,7 @@ class CLOTHDROP_OT_remove(bpy.types.Operator):
 
 
 classes = [
+    CLOTHDROP_OT_draw_rectangle,
     CLOTHDROP_OT_apply,
     CLOTHDROP_OT_remove,
     CLOTHDROP_OT_adjust_value,
