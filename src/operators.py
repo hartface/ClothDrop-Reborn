@@ -6,17 +6,17 @@ from . import graphics
 class CLOTHDROP_OT_draw_rectangle(bpy.types.Operator):
     bl_idname = "clothdrop.draw_rectangle"
     bl_label = "Draw Cloth"
-
+    text = "Draw Cloth"    
+        
     action = False
     _handle = None
     
-    def finish(self, context):
-        print("Start:", self.start)
-        print("End:", self.end)
-
 
     def invoke(self, context, event):
-        context.window.cursor_modal_set('EYEDROPPER')
+        context.window.cursor_modal_set('CROSSHAIR')
+        CLOTHDROP_OT_draw_rectangle.text = "Cancel Drawing"
+        context.area.tag_redraw()
+        self.report({'INFO'}, "Start drawing in the area")
         context.window_manager.modal_handler_add(self)
         return {'RUNNING_MODAL'}
 
@@ -28,6 +28,7 @@ class CLOTHDROP_OT_draw_rectangle(bpy.types.Operator):
                 self.end = (event.mouse_region_x, event.mouse_region_y)
                 context.area.tag_redraw()
 
+
         elif event.type == 'LEFTMOUSE' and event.value == 'PRESS':
             self.action = True
             self.start = (event.mouse_region_x, event.mouse_region_y)
@@ -36,6 +37,7 @@ class CLOTHDROP_OT_draw_rectangle(bpy.types.Operator):
         elif event.type == 'LEFTMOUSE' and event.value == 'RELEASE':
             if self.action == True:
                 bpy.types.SpaceView3D.draw_handler_remove(self._handle, 'WINDOW')
+                CLOTHDROP_OT_draw_rectangle.text = "Draw Cloth"
                 context.window.cursor_modal_restore()
                 context.area.tag_redraw()
                 return {'FINISHED'}
@@ -45,8 +47,12 @@ class CLOTHDROP_OT_draw_rectangle(bpy.types.Operator):
             return {'FINISHED'}
 
         elif event.type in {'ESC', 'RIGHTMOUSE'}:
-        
-            bpy.types.SpaceView3D.draw_handler_remove(self._handle, 'WINDOW')
+
+            context.window.cursor_modal_restore()
+            CLOTHDROP_OT_draw_rectangle.text = "Draw Cloth"
+            self.report({'INFO'}, "Cancelled Drawing.")
+            if self.action == True:        
+                bpy.types.SpaceView3D.draw_handler_remove(self._handle, 'WINDOW')
 
             context.area.tag_redraw()
 
