@@ -49,7 +49,6 @@ class CLOTHDROP_OT_draw_rectangle(bpy.types.Operator):
         plane = context.active_object
         plane.scale = (width / 2, height / 2, 1)
 
-
         up = plane.matrix_world.to_3x3() @ Vector((0, 0, 1))
         up.normalize()
 
