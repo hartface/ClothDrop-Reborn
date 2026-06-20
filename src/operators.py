@@ -72,8 +72,9 @@ class CLOTHDROP_OT_draw_rectangle(bpy.types.Operator):
 
         plane.location -= normal * min_projection
 
-        plane.location += normal * 0.001        
-            
+        plane.location += normal * 0.001
+
+        bpy.ops.clothdrop.apply()
 
     def invoke(self, context, event):
         context.window.cursor_modal_set('CROSSHAIR')
