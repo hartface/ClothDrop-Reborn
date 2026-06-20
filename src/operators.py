@@ -1,6 +1,8 @@
 import bpy
 from . import utils
 from . import graphics
+import mathutils
+
 
 
 class CLOTHDROP_OT_draw_rectangle(bpy.types.Operator):
@@ -11,6 +13,67 @@ class CLOTHDROP_OT_draw_rectangle(bpy.types.Operator):
     action = False
     _handle = None
     
+
+    def finish(self, context, origin, direction):
+        import math
+        from mathutils import Vector
+        from bpy_extras.view3d_utils import (region_2d_to_origin_3d, region_2d_to_vector_3d,)
+
+        depsgraph = context.evaluated_depsgraph_get()
+        result, location, normal, index, obj, matrix = context.scene.ray_cast(depsgraph, origin, direction)
+
+        if not result:
+            return
+
+        depth = (location - origin).length
+    
+        region = context.region
+        rv3d = context.region_data
+
+        rotation = rv3d.view_rotation.to_euler()
+
+        def project_to_depth(screen_co):
+            o = region_2d_to_origin_3d(region, rv3d, screen_co)
+            d = region_2d_to_vector_3d(region, rv3d, screen_co)
+            return o + d * depth
+
+        tl = project_to_depth((self.start[0], self.start[1]))
+        tr = project_to_depth((self.end[0], self.start[1]))
+        bl = project_to_depth((self.start[0], self.end[1]))
+
+        width = (tr - tl).length
+        height = (bl - tl).length
+
+        bpy.ops.mesh.primitive_plane_add(location=location, rotation=rotation)
+
+        plane = context.active_object
+        plane.scale = (width / 2, height / 2, 1)
+
+
+        up = plane.matrix_world.to_3x3() @ Vector((0, 0, 1))
+        up.normalize()
+
+        half_w = width / 2
+        half_h = height / 2
+
+        corners = [
+            Vector((-half_w, -half_h, 0)),
+            Vector(( half_w, -half_h, 0)),
+            Vector(( half_w,  half_h, 0)),
+            Vector((-half_w,  half_h, 0)),
+        ]
+    
+        rot = plane.matrix_world.to_3x3()
+
+        min_projection = min(
+            (rot @ corner).dot(normal)
+            for corner in corners
+        )
+
+        plane.location -= normal * min_projection
+
+        plane.location += normal * 0.001        
+            
 
     def invoke(self, context, event):
         context.window.cursor_modal_set('CROSSHAIR')
@@ -33,12 +96,29 @@ class CLOTHDROP_OT_draw_rectangle(bpy.types.Operator):
             self.action = True
             self.start = (event.mouse_region_x, event.mouse_region_y)
             self._handle = bpy.types.SpaceView3D.draw_handler_add(graphics.draw_rect, (self, context), 'WINDOW', 'POST_PIXEL')
+
          
         elif event.type == 'LEFTMOUSE' and event.value == 'RELEASE':
             if self.action == True:
                 bpy.types.SpaceView3D.draw_handler_remove(self._handle, 'WINDOW')
                 CLOTHDROP_OT_draw_rectangle.text = "Draw Cloth"
                 context.window.cursor_modal_restore()
+
+                #inheriting from aiming helper
+                coords = (
+                    (self.start[0] + self.end[0]) / 2,
+                    (self.start[1] + self.end[1]) / 2,
+                )
+                region = context.region
+                rv3d = context.region_data
+
+                from bpy_extras.view3d_utils import region_2d_to_origin_3d, region_2d_to_vector_3d    
+
+                origin = region_2d_to_origin_3d(region, rv3d, coords)
+                direction = region_2d_to_vector_3d(region, rv3d, coords)    
+        
+                self.finish(context, origin, direction)
+
                 context.area.tag_redraw()
                 return {'FINISHED'}
 
