@@ -10,13 +10,13 @@ def CLOTHDROP_main_box(layout, scene, context):
         row = layout.split(factor=0.5)
         row.operator("clothdrop.remove", icon='REMOVE')
         row.operator("clothdrop.update", icon="MOD_CLOTH")
-
-        layout.prop(obj.clothdrop, "presets")
+        layout.prop(scene.clothdrop, "presets")
     else:
         layout.operator("clothdrop.draw_rectangle", icon='MOD_CLOTH', text=f"{operators.CLOTHDROP_OT_draw_rectangle.text}")
         layout.operator("clothdrop.apply", icon='MOD_CLOTH')
-        layout.prop(obj.clothdrop, "presets")
+        layout.prop(scene.clothdrop, "presets")
         return
+
 
     layout.separator()
 
@@ -115,15 +115,8 @@ class CLOTHDROP_PT_panel(bpy.types.Panel):
         scene = context.scene
         obj = context.object       
 
-        valid, msg = utils.CLOTHDROP_validate_selected(context)
-        if not valid:
-            layout.label(text=msg, icon='ERROR')
-            return
-        
         CLOTHDROP_main_box(layout, scene, context)
 
-        if not utils.CLOTHDROP_has_modifier(context.object):
-            return
 
         
 

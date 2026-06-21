@@ -35,9 +35,11 @@ def register():
         bpy.utils.register_class(_class)
 
     bpy.types.Object.clothdrop = bpy.props.PointerProperty(type=properties.CLOTHDROP_Properties)
+    bpy.types.Scene.clothdrop = bpy.props.PointerProperty(type=properties.CLOTHDROP_UI)
 
 
 def unregister():
     del bpy.types.Object.clothdrop
+    del bpy.types.Scene.clothdrop
     for _class in reversed(classes):
         bpy.utils.unregister_class(_class)

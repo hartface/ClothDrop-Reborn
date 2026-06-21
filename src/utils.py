@@ -48,7 +48,7 @@ def CLOTHDROP_bake(context):
 
 def CLOTHDROP_preset_update(self, context):
     obj = context.object
-    settings = p.preset_values[obj.clothdrop.presets]
+    settings = p.preset_values[context.scene.clothdrop.presets]
     obj.clothdrop.subdivision = settings['subdivision']
     obj.clothdrop.folds = settings['folds']
     obj.clothdrop.subsurf = settings['subsurf']
@@ -155,7 +155,13 @@ def CLOTHDROP_validate_selected(context):
 
 
 def CLOTHDROP_has_modifier(obj):
-    return obj.clothdrop.active
+    try:
+        if obj.clothdrop.active == True:
+            return True
+        else:
+            return False
+    except:
+        return False        
 
 
 
