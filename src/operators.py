@@ -2,6 +2,7 @@ import bpy
 from . import utils
 from . import graphics
 import mathutils
+from mathutils import Matrix
 
 
 
@@ -47,7 +48,8 @@ class CLOTHDROP_OT_draw_rectangle(bpy.types.Operator):
         bpy.ops.mesh.primitive_plane_add(location=location, rotation=rotation)
 
         plane = context.active_object
-        plane.scale = (width / 2, height / 2, 1)
+        plane.data.transform(Matrix.Diagonal((width / 2, height / 2, 1, 1)))
+        plane.data.update()
 
         up = plane.matrix_world.to_3x3() @ Vector((0, 0, 1))
         up.normalize()
@@ -70,8 +72,10 @@ class CLOTHDROP_OT_draw_rectangle(bpy.types.Operator):
         )
 
         plane.location -= normal * min_projection
-
         plane.location += normal * 0.001
+
+        if context.scene.clothdrop.lock_rotation:
+            plane.rotation_euler = (0, 0, plane.rotation_euler.z)
 
         bpy.ops.clothdrop.apply()
 

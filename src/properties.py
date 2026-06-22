@@ -67,6 +67,7 @@ class CLOTHDROP_Properties(bpy.types.PropertyGroup):
 
 class CLOTHDROP_UI(bpy.types.PropertyGroup):
     presets : bpy.props.EnumProperty(name="Presets", description="Useful quick presets", items=preset_types, default='Heavy Cotton', update=utils.CLOTHDROP_preset_update)
+    lock_rotation : bpy.props.BoolProperty(name="Lock Rotation", description="Lock the draw rotation.", default=True)
 
 
 classes = [
