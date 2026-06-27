@@ -77,7 +77,9 @@ class CLOTHDROP_OT_draw_rectangle(bpy.types.Operator):
         if context.scene.clothdrop.lock_rotation:
             plane.rotation_euler = (0, 0, plane.rotation_euler.z)
 
+        plane.clothdrop.is_drawn = True
         bpy.ops.clothdrop.apply()
+
 
     def invoke(self, context, event):
         context.window.cursor_modal_set('CROSSHAIR')
@@ -230,6 +232,10 @@ class CLOTHDROP_OT_remove(bpy.types.Operator):
 
             
         obj.clothdrop.active = False
+
+        if obj.clothdrop.is_drawn:
+            bpy.data.objects.remove(obj)
+        
         return {'FINISHED'}
 
 
