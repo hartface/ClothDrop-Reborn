@@ -32,7 +32,7 @@ preset_values =  {
         "Paper":
         {
             "subdivision": 14,
-            "subsurf": 2,
+            "subsurf": 1,
             "wrinkles": 0,
             "folds": 1,
             "weight": 0.60,

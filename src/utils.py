@@ -265,6 +265,13 @@ def CLOTHDROP_subdivision(self, context):
     if not valid:
         return
 
+    vert_count = len(obj.data.vertices)
+    projected = vert_count * (obj.clothdrop.subdivision ** 2)
+
+    if projected > 100000:
+        self.report({'WARNING'}, f"Subdivision level {obj.clothdrop.subdivision} will generate ~{projected:,} vertices. Abstaining from further subdivision")
+        obj.clothdrop.subdivision = 0
+
     CLOTHDROP_restore_base(obj, clear_cache=False)
 
     bpy.ops.object.mode_set(mode='EDIT')
