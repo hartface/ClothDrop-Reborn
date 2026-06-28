@@ -271,7 +271,7 @@ def CLOTHDROP_subdivision(self, context):
     vert_count = len(obj.data.vertices)
     projected = vert_count * (obj.clothdrop.subdivision ** 2)
 
-    if projected > 100000:
+    if projected > 15000000:
         self.report({'WARNING'}, f"Subdivision level {obj.clothdrop.subdivision} will generate ~{projected:,} vertices. Abstaining from further subdivision")
         obj.clothdrop.subdivision = 0
 
