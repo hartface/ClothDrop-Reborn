@@ -32,7 +32,7 @@ preset_values =  {
         "Paper":
         {
             "subdivision": 14,
-            "subsurf": 1,
+            "subsurf": 0,
             "wrinkles": 0,
             "folds": 1,
             "weight": 0.60,
@@ -54,7 +54,7 @@ class CLOTHDROP_Properties(bpy.types.PropertyGroup):
 
     active : bpy.props.BoolProperty(name="Active",default=False)
     subdivision : bpy.props.IntProperty(name="Detail", description="Adjust geometric subdivision levels", min=1, default=preset_values["Heavy Cotton"]["subdivision"], max=200)
-    subsurf : bpy.props.IntProperty(name="Smoothness", description="Adjust subdivision modifier levels", min=1, default=preset_values["Heavy Cotton"]["subsurf"], max=10)
+    subsurf : bpy.props.IntProperty(name="Smoothness", description="Adjust subdivision modifier levels", min=0, default=preset_values["Heavy Cotton"]["subsurf"], max=10)
     wrinkles : bpy.props.IntProperty(name="Wrinkles", description="Adjust wrinkle levels", min=0, default=preset_values["Heavy Cotton"]["wrinkles"], max=100)
     folds : bpy.props.IntProperty(name="Folds", description="Adjust folding level", min=0, max=100, default=preset_values["Heavy Cotton"]["folds"])
     weight : bpy.props.FloatProperty(name="Weight", description="Adjust weight", min=0.1, max=10.0, default=preset_values["Heavy Cotton"]["weight"])
