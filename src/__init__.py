@@ -17,6 +17,7 @@ for _class in properties.classes:
     classes.append(_class)
 
 
+
 def register():
    
     for _class in classes:
@@ -24,6 +25,7 @@ def register():
 
     bpy.types.Object.clothdrop = bpy.props.PointerProperty(type=properties.CLOTHDROP_Properties)
     bpy.types.Scene.clothdrop = bpy.props.PointerProperty(type=properties.CLOTHDROP_UI)
+
 
 
 def unregister():

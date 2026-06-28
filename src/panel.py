@@ -108,10 +108,10 @@ def CLOTHDROP_main_box(layout, scene, context):
             
 class CLOTHDROP_PT_panel(bpy.types.Panel):
     bl_idname = "CLOTHDROP_PT_panel"
-    bl_label = "ClothDrop"
+    bl_label = "ClothDrop Reborn"
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
-    bl_category = "ClothDrop"
+    bl_category = "ClothDrop Reborn"
 
     def draw(self, context):
         layout = self.layout
