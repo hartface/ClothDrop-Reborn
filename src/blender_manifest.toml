@@ -3,7 +3,7 @@ id = "clothdrop_reborn"
 version = "2.0.0"
 name = "ClothDrop Reborn"
 tagline = "Single-click cloth simulation tool"
-maintainer = "Hartface <hartface@gmail.com>"
+maintainer = "Hartface <hartfacedev@gmail.com>"
 type = "add-on"
 
 license = ["SPDX:GPL-3.0-or-later"]
@@ -12,5 +12,5 @@ tags = ["Physics"]
 
 blender_version_min = "4.2.0"
 
-#website = "https://github.com//clothdrop"
+website = "https://hartface.github.io/posts/clothdrop-reborn/"
 

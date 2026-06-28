@@ -1,15 +1,3 @@
-bl_info = {
-    "name": "ClothDrop",
-    "author": "Gustavs Tempelfelds",
-    "version": (1, 0, 2),
-    "blender": (4, 2, 0),
-    "description": "Single Click Cloth Creator and Dropper",
-    "location": "View3D > Sidebar > ClothDrop",
-    "category": "Object"
-}
-
-
-
 import bpy
 from . import operators
 from . import panel

@@ -7,9 +7,11 @@ from . import properties as p
 def CLOTHDROP_bake(context):
     scene = context.scene
     obj = context.object
+
     bakeframe = max(1, obj.clothdrop.bakeframe)
 
     cloth = obj.modifiers.get("CLOTHDROP")
+
     if cloth is None:
         scene.frame_set(1)
         return
@@ -17,7 +19,7 @@ def CLOTHDROP_bake(context):
     pc = cloth.point_cache
     pc.frame_start = 1
     pc.frame_end = bakeframe
-
+    
     with context.temp_override(object=obj, active_object=obj, point_cache=pc):
         bpy.ops.ptcache.bake(bake=True)
 
@@ -26,9 +28,7 @@ def CLOTHDROP_bake(context):
     dg = bpy.context.evaluated_depsgraph_get()
     eval_obj = obj.evaluated_get(dg)
 
-    frozen = bpy.data.meshes.new_from_object(
-        eval_obj, preserve_all_data_layers=True, depsgraph=dg
-    )
+    frozen = bpy.data.meshes.new_from_object(eval_obj, preserve_all_data_layers=True, depsgraph=dg)
     obj.data = frozen
 
     with context.temp_override(object=obj, active_object=obj, point_cache=pc):
@@ -43,6 +43,7 @@ def CLOTHDROP_bake(context):
 
     scene.frame_set(1)
     bpy.context.view_layer.update()
+
 
 
 
@@ -61,17 +62,19 @@ def CLOTHDROP_remove_collision(context):
     obj = context.object
 
     if obj.clothdrop.collision_pointer is not None:
-        mod = obj.clothdrop.collision_pointer.modifiers.get('Collision')
+        mod = obj.clothdrop.collision_pointer.modifiers.get('Clothdrop_Collision')
 
         if mod:
-            obj.clothdrop.collision_pointer.modifiers.remove(mod)
-        
+            obj.clothdrop.collision_pointer.modifiers.remove(mod)        
         
     
 def CLOTHDROP_store_base(obj):
+    if obj.clothdrop.active:
+        return
+
     if obj.clothdrop.base_mesh is None:
         
-        stored_name = getattr(obj, "base_mesh_name", "")
+        stored_name = getattr(obj.clothdrop, "base_mesh_name", "")
         if stored_name and bpy.data.meshes.get(stored_name):
             obj.clothdrop.base_mesh = bpy.data.meshes.get(stored_name)
             return
@@ -184,7 +187,7 @@ def CLOTHDROP_update_collision_friction(context):
     if not collision_obj:
         return
 
-    mod = collision_obj.modifiers.get("Collision")
+    mod = collision_obj.modifiers.get("Clothdrop_Collision")
 
     if mod and hasattr(mod, "settings"):
         f_val = 80.0 if getattr(obj.clothdrop, "high_friction", True) else 1.0
@@ -199,36 +202,58 @@ def CLOTHDROP_update_collision_friction(context):
 def CLOTHDROP_auto_collision(obj, context):
     scene = context.scene
     depsgraph = context.evaluated_depsgraph_get()
-    origin = obj.location.copy()
-    direction = (0, 0, -1)
+    direction = Vector((0, 0, -1))
     hit_obj = None
+    best_hit_z = None
+    best_location = None
 
-    while True:
-        hit, location, normal, index, current_hit, matrix = scene.ray_cast(depsgraph, origin, direction)
+    bbox = [obj.matrix_world @ Vector(c) for c in obj.bound_box]
+    
+    min_x = min(v.x for v in bbox)
+    max_x = max(v.x for v in bbox)
+    min_y = min(v.y for v in bbox)
+    max_y = max(v.y for v in bbox)
+    start_z = max(v.z for v in bbox) + 100.0
 
-        if not hit:
-            break
+    steps = 10
 
-        if current_hit != obj:
-            hit_obj = current_hit
-            break
+    for i in range(steps):
+        for j in range(steps):
+            x = min_x + (max_x - min_x) * (i / (steps - 1))
+            y = min_y + (max_y - min_y) * (j / (steps - 1))
+            o = Vector((x, y, start_z))
 
-        origin = location + Vector((0, 0, -0.001))
+            while True:
+                hit, location, normal, index, current_hit, matrix = scene.ray_cast(
+                    depsgraph, o, direction
+                )
+                if not hit:
+                    break
+                if current_hit == obj:
+                    o = location + Vector((0, 0, -0.001))
+                    continue
+                if best_hit_z is None or location.z > best_hit_z:
+                    best_hit_z = location.z
+                    best_location = location.copy()
+                    hit_obj = current_hit
+                break
 
-    if hit_obj is None:
-        return False
+    if hit_obj is None or best_location is None:
+        return None, None
 
-    col = hit_obj.modifiers.get("Collision")
-
+    col = hit_obj.modifiers.get("Clothdrop_Collision")
     if not col:
-        col = hit_obj.modifiers.new(name="Collision", type='COLLISION')
+        col = hit_obj.modifiers.new(name="Clothdrop_Collision", type='COLLISION')
 
     obj.clothdrop.collision_pointer = hit_obj
-    f_val = 80.0 if getattr(obj, "high_friction", True) else 1.0
+
+    f_val = 80.0 if obj.clothdrop.high_friction else 1.0
     col.settings.cloth_friction = f_val
-    col.settings.damping = 1.0 if getattr(obj, "high_friction", True) else 0.1
+    col.settings.damping = 1.0 if obj.clothdrop.high_friction else 0.1
     col.settings.thickness_outer = 0.001
-    return True
+
+    return hit_obj, best_location
+
 
 
 
