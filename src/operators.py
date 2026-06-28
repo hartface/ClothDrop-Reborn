@@ -9,7 +9,8 @@ from mathutils import Matrix
 class CLOTHDROP_OT_draw_rectangle(bpy.types.Operator):
     bl_idname = "clothdrop.draw_rectangle"
     bl_label = "Draw Cloth"
-    text = "Draw Cloth"    
+    text = "Draw Cloth"
+    bl_description = "Draw cloth manually."
         
     action = False
     _handle = None
@@ -169,8 +170,8 @@ class CLOTHDROP_OT_adjust_value(bpy.types.Operator):
 
     def execute(self, context):
         obj = context.object
-        current = getattr(obj, self.prop)
-        setattr(obj, self.prop, current + self.delta)
+        current = getattr(obj.clothdrop, self.prop)
+        setattr(obj.clothdrop, self.prop, current + self.delta)
         return {'FINISHED'}
     
 
