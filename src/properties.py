@@ -64,6 +64,7 @@ class CLOTHDROP_Properties(bpy.types.PropertyGroup):
     base_mesh : bpy.props.PointerProperty(name="Base Mesh", type=bpy.types.Mesh)
     base_mesh_name : bpy.props.StringProperty(name="Base Mesh Name", description="Fallback name reference for base mesh across sessions", default="")
     is_drawn : bpy.props.BoolProperty(name="Is drawn", description="True if object is drawn", default=False)
+    base_location_z : bpy.props.FloatProperty(name="Base Location Z", default=0.0)
 
 
 class CLOTHDROP_UI(bpy.types.PropertyGroup):

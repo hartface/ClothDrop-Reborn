@@ -72,6 +72,8 @@ def CLOTHDROP_store_base(obj):
     if obj.clothdrop.active:
         return
 
+    obj.clothdrop.base_location_z = obj.location.z
+    
     if obj.clothdrop.base_mesh is None:
         
         stored_name = getattr(obj.clothdrop, "base_mesh_name", "")
@@ -104,6 +106,7 @@ def CLOTHDROP_restore_base(obj, clear_cache=True):
     old = obj.data
     obj.data = cached.copy()
     obj.data.name = obj.name
+    obj.location.z = obj.clothdrop.base_location_z
   
     if clear_cache:
         obj.clothdrop.base_mesh = None
