@@ -1,6 +1,6 @@
 import bpy
 from mathutils import Vector
-from . import properties as p
+from . import presets
 
 
 
@@ -49,7 +49,7 @@ def CLOTHDROP_bake(context):
 
 def CLOTHDROP_preset_update(self, context):
     obj = context.object
-    settings = p.preset_values[context.scene.clothdrop.presets]
+    settings = presets.preset_values[context.scene.clothdrop.presets]
     obj.clothdrop.subdivision = settings['subdivision']
     obj.clothdrop.folds = settings['folds']
     obj.clothdrop.subsurf = settings['subsurf']
@@ -72,8 +72,7 @@ def CLOTHDROP_store_base(obj):
     if obj.clothdrop.active:
         return
 
-    obj.clothdrop.base_location_z = obj.location.z
-    
+   
     if obj.clothdrop.base_mesh is None:
         
         stored_name = getattr(obj.clothdrop, "base_mesh_name", "")
@@ -81,6 +80,7 @@ def CLOTHDROP_store_base(obj):
             obj.clothdrop.base_mesh = bpy.data.meshes.get(stored_name)
             return
 
+        obj.clothdrop.base_location_z = obj.location.z
         copy = obj.data.copy()
         copy.name = f"{obj.name}_clothdrop_base"
         copy.use_fake_user = True
@@ -271,7 +271,7 @@ def CLOTHDROP_subdivision(self, context):
     vert_count = len(obj.data.vertices)
     projected = vert_count * (obj.clothdrop.subdivision ** 2)
 
-    if projected > 15000000:
+    if projected > 35000000:
         self.report({'WARNING'}, f"Subdivision level {obj.clothdrop.subdivision} will generate ~{projected:,} vertices. Abstaining from further subdivision")
         obj.clothdrop.subdivision = 0
 

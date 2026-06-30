@@ -1,6 +1,6 @@
 schema_version = "1.0.0"
 id = "clothdrop_reborn"
-version = "2.0.1"
+version = "2.0.2"
 name = "ClothDrop Reborn"
 tagline = "Single-click cloth simulation tool"
 maintainer = "Hartface <hartfacedev@gmail.com>"
